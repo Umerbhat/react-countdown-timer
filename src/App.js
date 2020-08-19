@@ -27,11 +27,28 @@ const statusQuoteMaper = {
   finish: "Time's up!",
 };
 const SECONDS_PER_MIN = 60;
+const SECOND_IN_MILLISECONDS = 1000;
+
+function getSecondsFromMinutes(mins) {
+  return mins * 60;
+}
+function getTimeFromSeconds(totalSeconds) {
+  const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+  const seconds = Math.floor(totalSeconds % 60);
+  return { minutes, seconds };
+}
+function getSecondsFromTime({ minutes = 0, seconds }) {
+  const minutesIntoSeconds = minutes * 60;
+  return minutesIntoSeconds + seconds;
+}
+function calculatePercentage(value, total) {
+  return (value / total) * 100;
+}
 
 function App() {
   const [counterTime, setCounterTime] = useState({
-    minutes: "00",
-    seconds: "00",
+    minutes: 0,
+    seconds: 0,
   });
   const [playSpeed, setPlaySpeed] = useState("normal");
   const [isPause, setIsPause] = useState(false);
@@ -39,7 +56,8 @@ function App() {
   const [counterStatus, setCounterStatus] = useState("start");
 
   let intervalRef = useRef();
-  let totalTimeInMins = useRef();
+  let totalTimeInSeconds = useRef();
+  
 
   useEffect(() => {
     console.log(progress, "progressprogress");
@@ -52,9 +70,15 @@ function App() {
     }
   }, [progress]);
 
-  const getIntervalByPlaySpeed = useCallback((speed) => {
-    return playSpeedMapper[speed];
-  }, []);
+  useEffect(() => {
+    const minutes = counterTime.minutes;
+    const seconds = counterTime.seconds;
+    const currentTimeInSeconds = getSecondsFromTime({ minutes, seconds });
+    console.log(currentTimeInSeconds, totalTimeInSeconds.current, "ttttt")
+    const currentProgressInPercentage =
+      calculatePercentage(currentTimeInSeconds, totalTimeInSeconds.current);
+      setProgress(currentProgressInPercentage);
+  }, [counterTime.minutes, counterTime.seconds]);
 
   const prependZero = useCallback((number) => {
     if (number <= 9) return "0" + number;
@@ -63,44 +87,32 @@ function App() {
 
   const updateTimer = useCallback(() => {
     setCounterTime((prevTime) => {
-      let minsInInt = parseInt(prevTime.minutes);
-      let secondsInInt = parseInt(prevTime.seconds);
-      if (minsInInt !== 0 && secondsInInt < 1) {
-        return {
-          minutes: prependZero(minsInInt - 1),
-          seconds: prependZero(SECONDS_PER_MIN - secondsInInt - 1),
-        };
-      } else if (minsInInt === 0 && secondsInInt < 1) {
-        return { ...prevTime, seconds: prependZero(secondsInInt) };
-      } else {
-        return { ...prevTime, seconds: prependZero(secondsInInt - 1) };
-      }
+      const prevTimeInSeconds = getSecondsFromTime(prevTime);
+      const newTimeInSeconds = prevTimeInSeconds - 1;
+      const newState = getTimeFromSeconds(newTimeInSeconds)
+      console.log(prevTime, "cc")
+      return {...prevTime, ...newState};
     });
-  }, [prependZero]);
-
-  const getPercentageValue = useCallback(
-    (value, total) => (value / total) * 100,
-    []
-  );
+  }, []);
 
   const onCounterStart = useCallback(
     (isNew = true, mins, speed = playSpeed) => {
-      const intervalTime = getIntervalByPlaySpeed(speed);
-      const progressDecrement = intervalTime * progressDeltaMapper[speed];
+      const frequency = progressDeltaMapper[speed];
+      const intervalTimeInMilliSeconds = SECOND_IN_MILLISECONDS / frequency;
+      // const deltaInSeconds =  (SECOND_IN_MILLISECONDS / 1000) * frequency;
+
+      const inputTimeInSeconds = getSecondsFromMinutes(mins);
       intervalRef.current && clearInterval(intervalRef.current);
       if (isNew) {
-        totalTimeInMins.current = mins * 60;
-        setCounterTime({ minutes: prependZero(mins), seconds: prependZero(0) });
+        totalTimeInSeconds.current = inputTimeInSeconds;
+        console.log(inputTimeInSeconds,getTimeFromSeconds(inputTimeInSeconds), "tt")
+        setCounterTime(getTimeFromSeconds(inputTimeInSeconds));
       }
       intervalRef.current = setInterval(() => {
         updateTimer();
-        setProgress(
-          (currentProgress) =>
-            currentProgress - progressDecrement / totalTimeInMins.current
-        );
-      }, intervalTime);
+      }, intervalTimeInMilliSeconds);
     },
-    [prependZero, updateTimer, getIntervalByPlaySpeed, playSpeed]
+    [updateTimer, playSpeed]
   );
 
   const handleSubmit = useCallback(
@@ -129,8 +141,8 @@ function App() {
             {statusQuoteMaper[counterStatus]}
           </blockquote>
           <Display
-            minutes={counterTime.minutes}
-            seconds={counterTime.seconds}
+            minutes={prependZero(counterTime.minutes)}
+            seconds={prependZero(counterTime.seconds)}
             isPause={isPause}
             onPauseToggle={() => setIsPause((status) => !status)}
           />
