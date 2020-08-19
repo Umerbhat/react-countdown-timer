@@ -122,7 +122,7 @@ html,
   background-color: #111;
   color: #fff;
 }
-.c-button--outlined:active {
+.c-button--outlined:active, .c-button--outlined.c-button--active {
   border-color: #111;
   color: #fff;
   background-color: #6d6d6d;
