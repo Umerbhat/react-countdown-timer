@@ -1,38 +1,168 @@
-.App {
-  text-align: center;
+/* mini normalize */
+html {
+  line-height: 1.15;
+  -webkit-text-size-adjust: 100%;
+}
+body,
+blockquote,
+h1 {
+  margin: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* app css */
+
+html {
+  color: #111;
+  font-size: calc(10px + (26 - 14) * ((100vw - 300px) / (1600 - 300)));
+  font-family: "Bebas Neus", sans-serif;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+html,
+.page,
+#root {
+  height: 100%;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* layouts */
+
+.l-row,
+.c-input--horizontal {
   display: flex;
-  flex-direction: column;
+}
+.l-row--spacing-sm {
+  margin: 0px -0.5rem;
+}
+.l-row--spacing-sm > .l-row__item {
+  padding: 0px 0.5rem;
+}
+.l-row--align-center {
+  align-items: center;
+}
+.l-row--justify-center {
+  justify-content: center;
+}
+
+/* components */
+
+/* component - input */
+
+.c-input__box {
+  padding: 0.5rem 1rem;
+  border: 1px solid;
+  transition: all 0.1s ease-out;
+  font-size: inherit;
+  min-width: 7rem;
+}
+.c-input__box:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  transition: all 0.1s ease-in;
+}
+.c-input__box:focus {
+  background-color: rgba(0, 0, 0, 0.01);
+  transition: all 0.1s ease-in;
+}
+.c-input__box[type="number"] {
+  padding-right: 0.2rem;
+}
+.c-input__box--square {
+  border-radius: 0;
+}
+.c-input__box--primary {
+  outline: 0;
+  border-color: #111;
+}
+.c-input__box--primary:focus {
+  border-color: #009688;
+}
+.c-input__label {
+  margin-right: 1rem;
+}
+
+/* component - button */
+
+.c-button {
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease-out;
+  border: 1px solid transparent;
+  outline: 0;
+  font-size: inherit;
+}
+.c-button:hover {
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+}
+.c-button:focus {
+  transition: all 0.2s ease-in;
+}
+.c-button--primary {
+  background-color: #009688;
+  border-color: #009688;
+  color: #fff;
+  text-transform: uppercase;
+}
+.c-button--primary:hover {
+  background-color: #111;
+  border-color: #111;
+}
+.c-button--primary:active {
+  background-color: #6d6d6d;
+  border-color: #6d6d6d;
+}
+.c-button--circular {
+  border-radius: 50%;
+  padding: 0;
+  width: 3em;
+  height: 3em;
+}
+.c-button--outlined {
+  background-color: #fff;
+  border: 2px solid #111;
+}
+.c-button--outlined:hover {
+  background-color: #111;
+  color: #fff;
+}
+.c-button--outlined:active {
+  border-color: #111;
+  color: #fff;
+  background-color: #6d6d6d;
+}
+.c-button__icon {
+  width: 1.5em;
+  height: 1.5em;
+  fill: currentColor;
+}
+
+/* module */
+
+.countdown {
+  padding: 1.5rem;
+}
+
+.countdown-wrapper {
+  height: 100%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+}
+.countdown__header {
+  margin-bottom: 1.5rem;
+}
+.countdown__display {
+  position: relative;
+}
+.countdown__digits {
+  font-size: 9rem;
+  text-align: center;
+}
+.countdown__quote {
+  text-align: center;
+  font-style: italic;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.countdown__pause {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translate(100%, -50%);
 }
