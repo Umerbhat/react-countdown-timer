@@ -111,6 +111,7 @@ html,
 .c-button--circular {
   border-radius: 50%;
   padding: 0;
+  line-height: 0.5em;
   width: 3em;
   height: 3em;
 }
@@ -122,7 +123,8 @@ html,
   background-color: #111;
   color: #fff;
 }
-.c-button--outlined:active, .c-button--outlined.c-button--active {
+.c-button--outlined:active,
+.c-button--outlined.c-button--active {
   border-color: #111;
   color: #fff;
   background-color: #6d6d6d;
@@ -137,6 +139,7 @@ html,
 
 .countdown {
   padding: 1.5rem;
+  padding-right: 5rem;
 }
 
 .countdown-wrapper {
@@ -154,6 +157,11 @@ html,
 .countdown__digits {
   font-size: 9rem;
   text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+.countdown__digits--danger {
+  color: red;
+  transition: all 0.3s ease-in-out;
 }
 .countdown__quote {
   text-align: center;
@@ -165,4 +173,70 @@ html,
   right: 0;
   top: 50%;
   transform: translate(100%, -50%);
+}
+
+/* keyframes */
+
+@keyframes flash {
+  from,
+  50%,
+  to {
+    opacity: 1;
+  }
+
+  25%,
+  75% {
+    opacity: 0;
+  }
+}
+
+@keyframes bounceIn {
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  0% {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  20% {
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+
+  40% {
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.flash {
+  animation: flash;
+  animation-duration: 1.5s;
+  animation-fill-mode: both;
+  animation-iteration-count: infinite;
+}
+
+.bounceIn {
+  animation-name: bounceIn;
+  animation-duration: 0.75s;
+  animation-fill-mode: both;
 }
