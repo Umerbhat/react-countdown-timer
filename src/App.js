@@ -7,40 +7,15 @@ import React, {
 } from "react";
 import "./App.css";
 import { Form, Display, Controls } from "./components";
-
-const progressDeltaMapper = {
-  slow: 0.5,
-  normal: 1,
-  fast: 1.5,
-  faster: 2,
-};
-const statusQuoteMaper = {
-  start: "",
-  half: "More than halfway there!",
-  finish: "Time's up!",
-};
-const SECONDS_PER_MIN = 60;
-const SECOND_IN_MILLISECONDS = 1000;
-
-function prependZero(number) {
-  if (number <= 9) return "0" + number;
-  else return number;
-}
-
-function getSecondsFromMinutes(mins) {
-  return mins * SECONDS_PER_MIN;
-}
-function getTimeFromSeconds(totalSeconds) {
-  const minutes = Math.floor(
-    (totalSeconds % (SECONDS_PER_MIN * SECONDS_PER_MIN)) / SECONDS_PER_MIN
-  );
-  const seconds = Math.floor(totalSeconds % SECONDS_PER_MIN);
-  return { minutes, seconds };
-}
-
-function calculatePercentage(value, total) {
-  return (value / total) * 100;
-}
+import {
+  SECOND_IN_MILLISECONDS,
+  prependZero,
+  getSecondsFromMinutes,
+  getTimeFromSeconds,
+  calculatePercentage,
+  progressDeltaMapper,
+  statusQuoteMaper,
+} from "./utils";
 
 function App() {
   const [counterTimeInSeconds, setCounterTimeInSeconds] = useState(0);
@@ -53,14 +28,14 @@ function App() {
   let totalTimeInSeconds = useRef();
 
   useEffect(() => {
-    if (Math.floor(progress) < 50) {
+    if (Math.floor(progress) < 50 && counterStatus !== "half") {
       setCounterStatus("half");
     }
     if (progress === 0) {
       setCounterStatus("finish");
       clearInterval(intervalRef.current);
     }
-  }, [progress]);
+  }, [progress, counterStatus]);
 
   useEffect(() => {
     const currentTimeInSeconds = counterTimeInSeconds;
@@ -80,52 +55,54 @@ function App() {
     });
   }, []);
 
-  const onCounterStart = useCallback(
-    (isNew = true, mins, speed = playSpeed) => {
+  const freshTickStart = useCallback((inputTimeInSeconds) => {
+    totalTimeInSeconds.current = inputTimeInSeconds;
+    setCounterStatus("start");
+    setIsPause(false);
+    setCounterTimeInSeconds(inputTimeInSeconds);
+  }, []);
+
+  const tickStart = useCallback(
+    (fresh = true, mins, speed = playSpeed) => {
       const frequency = progressDeltaMapper[speed];
       const intervalTimeInMilliSeconds = SECOND_IN_MILLISECONDS / frequency;
       const inputTimeInSeconds = getSecondsFromMinutes(mins);
 
       intervalRef.current && clearInterval(intervalRef.current);
-      if (isNew) {
-        totalTimeInSeconds.current = inputTimeInSeconds;
-        setCounterStatus("start");
-        setIsPause(false);
-        setCounterTimeInSeconds(inputTimeInSeconds);
-      }
+      fresh && freshTickStart(inputTimeInSeconds);
       intervalRef.current = setInterval(() => {
         updateTimer();
       }, intervalTimeInMilliSeconds);
     },
-    [updateTimer, playSpeed]
+    [updateTimer, playSpeed, freshTickStart]
   );
 
   const handleSubmit = useCallback(
     (e) => {
       e.preventDefault();
       const formMinutesValue = e.target.minutes.value;
-      formMinutesValue && onCounterStart(true, formMinutesValue);
+      formMinutesValue && tickStart(true, formMinutesValue);
     },
-    [onCounterStart]
+    [tickStart]
   );
 
   const onSpeedChange = useCallback(
     (speed) => {
       setPlaySpeed(speed);
-      !isPause && onCounterStart(false, null, speed);
+      !isPause && tickStart(false, null, speed);
     },
-    [onCounterStart, isPause]
+    [tickStart, isPause]
   );
 
   const handlePause = useCallback(() => {
     if (isPause) {
       setIsPause(false);
-      onCounterStart(false);
+      tickStart(false);
     } else {
       setIsPause(true);
       clearInterval(intervalRef.current);
     }
-  }, [isPause, onCounterStart]);
+  }, [isPause, tickStart]);
 
   const time = useMemo(() => {
     return getTimeFromSeconds(counterTimeInSeconds);

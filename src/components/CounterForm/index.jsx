@@ -11,7 +11,7 @@ const CounterHeader = (props) => {
                         <input
                             className="c-input__box c-input__box--square c-input__box--primary"
                             type="number"
-                            name = "minutes"
+                            name="minutes"
                             min="0"
                             max="60"
                             placeholder="(Min)"
